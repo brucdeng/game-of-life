@@ -5,12 +5,37 @@ def main():
     arr1=np.random.rand(int(dim),int(dim))
     t=0
     #1 is alive, 0 is dead
+    #for r, c in np.ndindex(arr1.shape):
+        #if arr1[r,c] < .95:
+            #arr1[r,c] = 1
+        #else:
+            #arr1[r,c] = 0
+    probabilities = [1, 0.9, 0.8, 0.6, 0.4, 0.2]
+    prob_map = np.zeros(arr1.shape)
+    # currently hardcoded to set 11x11 grid
+    center = int(11)//2
     for r, c in np.ndindex(arr1.shape):
-        if arr1[r,c] < .5:
-            arr1[r,c] = 1
+        distance = max(abs(r - center), abs(c - center))
+        if distance < len(probabilities):
+            prob_map[r, c] = probabilities[distance]
         else:
-            arr1[r,c] = 0
-    arr2=arr1.copy()
+            prob_map[r, c] = 0
+    
+    
+    # expanding grid to 110x110
+    if (int(dim)==110):
+        prob_map_large = np.zeros((110, 110))
+        for r in range(11):
+            for c in range(11):
+                prob_map_large[r*10:(r+1)*10, c*10:(c+1)*10] = prob_map[r, c]
+        prob_map = prob_map_large.copy()
+    # set the values in the array based on the probability map
+    for r, c in np.ndindex(arr1.shape):
+        if arr1[r,c] < prob_map[r, c]:
+            arr1[r, c] = 1
+        else:
+            arr1[r, c] = 0
+    arr2=arr1.copy()  
 
     #simulation
     while (t<=1000):
@@ -29,8 +54,8 @@ def main():
                 if neighbors==3:
                     arr2[r,c]=1
         t=t+1
-        print(arr1)
-        print(arr2)
+        #print(arr1)
+        #print(arr2)
         if (np.array_equal(arr1,arr2)):
             break
         arr1=arr2.copy()
